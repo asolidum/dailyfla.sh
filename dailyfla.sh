@@ -79,35 +79,6 @@ timestamp[29]="00:00:00"
 filename[30]="filename30.mp4"
 timestamp[30]="00:00:00"
 
-# Get number of days in specified month
-function get_num_days_in_month() {
-    local month=$1
-    local year=$2
-    case $month in
-        January|March|May|July|August|October|December| \
-        Jan|Mar|May|Jul|Aug|Oct|Dec| \
-        1|3|5|7|8|10|12)
-            echo 31
-            ;;
-        April|June|September|November| \
-        Apr|Jun|Sep|Nov| \
-        4|6|9|11)
-            echo 30
-            ;;        
-        February|Feb|2)
-            # determine if is leap year
-            if [ $((year % 4)) -eq 0 ] && [ $((year % 100)) -ne 0 ] || [ $((year % 400)) -eq 0 ]; then
-                echo 29
-            else
-                echo 28
-            fi
-            ;;
-        *)
-            echo "Invalid month"
-            ;;
-    esac
-}
-
 function add_missing_audio_stream() {
     local outfile=$1
     local daystr=$2
@@ -131,7 +102,7 @@ year=$2
 # Check if correct number of days for inputted month and year
 size=${#filename[@]}
 echo "Creating video for ${month} ${year}"
-num_days=$(get_num_days_in_month $month $year)
+num_days=$(cal $(date +"%${month} %${year}") | awk 'NF {DAYS = $NF}; END {print DAYS}')
 if [ $num_days -ne $size ]; then
     echo "ERROR: Expected ${num_days} days for ${month} ${year} but saw ${size}"
     exit 1
