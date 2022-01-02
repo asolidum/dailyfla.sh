@@ -102,7 +102,7 @@ year=$2
 # Check if correct number of days for inputted month and year
 size=${#filename[@]}
 echo "Creating video for ${month} ${year}"
-num_days=$(cal $(date +"%${month} %${year}") | awk 'NF {DAYS = $NF}; END {print DAYS}')
+num_days=$(cal ${month} ${year} | awk 'NF {DAYS = $NF}; END {print DAYS}')
 if [ $num_days -ne $size ]; then
     echo "ERROR: Expected ${num_days} days for ${month} ${year} but saw ${size}"
     exit 1
