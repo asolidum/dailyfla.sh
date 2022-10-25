@@ -13,6 +13,11 @@ font_settings="/System/Library/Fonts/Keyboard.ttf:fontcolor=white"
 title_text_settings="drawtext=fontfile=${font_settings}:fontsize=$((font_size*2)):x=(w-text_w)/2:y=(h-text_h)/2"
 daily_text_settings="drawtext=fontfile=${font_settings}:fontsize=${font_size}:box=1:boxcolor=black@0.5:boxborderw=5:x=(w*3/4):y=(h*3/4)"
 
+## Thumbnail parameters
+thumbnail_title_timeoffset="1"
+thumbnail_video_timeoffset="0.5"
+thumbnail_resolution="1280x720"
+
 declare -a filenames
 declare -a timestamps
 
@@ -91,13 +96,14 @@ function add_missing_audio_stream() {
 } 
 
 # Check for correct number of input arguments
-if [ $# -ne 3 ]; then
-    echo "Usage: $0 <month> <year> <output_filename>"
+if [ $# -ne 4 ]; then
+    echo "Usage: $0 <month> <year> <output_filename> <thumbnail_dir>"
     exit 1
 fi
 
 month=$1
 year=$2
+thumbnail_dir=$4
 
 # Check if correct number of days for inputted month and year
 size=${#filename[@]}
@@ -112,8 +118,12 @@ fi
 mkdir -p tmp
 rm -rf ./tmp/*
 
+# Make thumbnail dir
+mkdir -p $4
+
 echo "Creating title screen"
 ffmpeg -f lavfi -i color=c=black:rate=25:size=${resolution}:duration=${title_duration} -vf "${title_text_settings}:text='${month} ${year}'" ./tmp/tmp_title.mp4 &> /dev/null
+ffmpeg -i ./tmp/tmp_title.mp4 -ss ${thumbnail_title_timeoffset} -s "${thumbnail_resolution}" -frames:v 1 $4/thumbnail_title.png
 ffmpeg -f lavfi -i anullsrc=channel_layout=stereo:sample_rate=48000 -i ./tmp/tmp_title.mp4 -c:v copy -c:a aac -shortest -y ./tmp/title.mp4 &> /dev/null
 echo "file title.mp4" >> ./tmp/concat_list.txt
 
@@ -126,7 +136,8 @@ for (( i=1; i<=$size; i++ )); do
         ffmpeg -i "${filename[$i]}" -ss ${timestamp[$i]} -t ${duration} ${transcode_settings} ./tmp/tmp_${outfile} >& /dev/null
         # Check if file has audio stream
         add_missing_audio_stream ./tmp/tmp_${outfile} ${day_str}
-        ffmpeg -i ./tmp/tmp_${outfile} -vf "${daily_text_settings}:text='Day ${day_str}'" ./tmp/${outfile} >& /dev/null
+        ffmpeg -i ./tmp/tmp_${outfile} -ss ${thumbnail_video_timeoffset} -s "${thumbnail_resolution}" -frames:v 1 $4/thumbnail_${day_str}.png
+        ffmpeg -i ./tmp/tmp_${outfile} -vf "${daily_text_settings}:text='Day ${day_str}'" ./tmp/${outfile}
         echo "file ${outfile}" >> ./tmp/concat_list.txt
     else
         if [ ! -z "${timestamp[$i]}" ]; then
