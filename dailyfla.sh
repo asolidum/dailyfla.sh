@@ -117,13 +117,11 @@ fi
 # Setup tmp directory
 mkdir -p tmp
 rm -rf ./tmp/*
-
-# Make thumbnail dir
-mkdir -p $4
+mkdir ./tmp/thumbnails
 
 echo "Creating title screen"
 ffmpeg -f lavfi -i color=c=black:rate=25:size=${resolution}:duration=${title_duration} -vf "${title_text_settings}:text='${month} ${year}'" ./tmp/tmp_title.mp4 &> /dev/null
-ffmpeg -i ./tmp/tmp_title.mp4 -ss ${thumbnail_title_timeoffset} -s "${thumbnail_resolution}" -frames:v 1 $4/thumbnail_title.png
+ffmpeg -i ./tmp/tmp_title.mp4 -ss ${thumbnail_title_timeoffset} -s "${thumbnail_resolution}" -frames:v 1 ./tmp/thumbnails/thumbnail_title.png
 ffmpeg -f lavfi -i anullsrc=channel_layout=stereo:sample_rate=48000 -i ./tmp/tmp_title.mp4 -c:v copy -c:a aac -shortest -y ./tmp/title.mp4 &> /dev/null
 echo "file title.mp4" >> ./tmp/concat_list.txt
 
@@ -151,3 +149,5 @@ done
 
 echo "Creating daily flash file - ${3}"
 ffmpeg -y -f concat -safe 0 -i ./tmp/concat_list.txt -c copy $3 &> /dev/null
+# Copy thumbnails to thumbnail destination dir
+mv ./tmp/thumbnails/* $4
