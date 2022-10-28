@@ -134,7 +134,7 @@ for (( i=1; i<=$size; i++ )); do
         ffmpeg -i "${filename[$i]}" -ss ${timestamp[$i]} -t ${duration} ${transcode_settings} ./tmp/tmp_${outfile} >& /dev/null
         # Check if file has audio stream
         add_missing_audio_stream ./tmp/tmp_${outfile} ${day_str}
-        ffmpeg -i ./tmp/tmp_${outfile} -ss ${thumbnail_video_timeoffset} -s "${thumbnail_resolution}" -frames:v 1 $4/thumbnail_${day_str}.png
+        ffmpeg -i ./tmp/tmp_${outfile} -ss ${thumbnail_video_timeoffset} -s "${thumbnail_resolution}" -frames:v 1 ./tmp/thumbnails/thumbnail_${day_str}.png
         ffmpeg -i ./tmp/tmp_${outfile} -vf "${daily_text_settings}:text='Day ${day_str}'" ./tmp/${outfile}
         echo "file ${outfile}" >> ./tmp/concat_list.txt
     else
