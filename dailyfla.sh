@@ -8,10 +8,16 @@ title_duration="3"
 ## Resolution of the final videos (in pixels)
 resolution="3840x2160"
 transcode_settings="-vcodec libx264 -c:a aac -b:a 160k -filter:v fps=25 -s ${resolution}"
+## Resolution of the shorts final videos (in pixels)
+shorts_width="1080"
+shorts_height="1920"
+
 font_size=128
 font_settings="/System/Library/Fonts/Keyboard.ttf:fontcolor=white"
 title_text_settings="drawtext=fontfile=${font_settings}:fontsize=$((font_size*2)):x=(w-text_w)/2:y=(h-text_h)/2"
 daily_text_settings="drawtext=fontfile=${font_settings}:fontsize=${font_size}:box=1:boxcolor=black@0.5:boxborderw=5:x=(w*3/4):y=(h*3/4)"
+short_font_size=100
+short_title_text_settings="drawtext=fontfile=${font_settings}:fontsize=$((short_font_size*2)):x=(w-text_w)/2"
 
 ## Thumbnail parameters
 thumbnail_title_timeoffset="1"
@@ -119,11 +125,16 @@ mkdir -p tmp
 rm -rf ./tmp/*
 mkdir ./tmp/thumbnails
 
-echo "Creating title screen"
+echo "Creating title screens (normal and short)"
 ffmpeg -f lavfi -i color=c=black:rate=25:size=${resolution}:duration=${title_duration} -vf "${title_text_settings}:text='${month} ${year}'" ./tmp/tmp_title.mp4 &> /dev/null
 ffmpeg -i ./tmp/tmp_title.mp4 -ss ${thumbnail_title_timeoffset} -s "${thumbnail_resolution}" -frames:v 1 ./tmp/thumbnails/thumbnail_title.png
 ffmpeg -f lavfi -i anullsrc=channel_layout=stereo:sample_rate=48000 -i ./tmp/tmp_title.mp4 -c:v copy -c:a aac -shortest -y ./tmp/title.mp4 &> /dev/null
 echo "file title.mp4" >> ./tmp/concat_list.txt
+
+ffmpeg -f lavfi -i color=c=black:rate=25:size=${shorts_width}x${shorts_height}:duration=${title_duration} -vf "${short_title_text_settings}:y=(h-text_h)*0.43:text='${month}'" ./tmp/tmp_short_title1.mp4 &> /dev/null
+ffmpeg -i ./tmp/tmp_short_title1.mp4 -vf "${short_title_text_settings}:y=(h-text_h)*0.58:text='${year}'" ./tmp/tmp_short_title.mp4 &> /dev/null
+ffmpeg -f lavfi -i anullsrc=channel_layout=stereo:sample_rate=48000 -i ./tmp/tmp_short_title.mp4 -c:v copy -c:a aac -shortest -y ./tmp/short_title.mp4 &> /dev/null
+echo "file short_title.mp4" >> ./tmp/short_concat_list.txt
 
 for (( i=1; i<=$size; i++ )); do
     day_str=$(printf "%02d" $((i)))
