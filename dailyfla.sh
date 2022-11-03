@@ -90,14 +90,21 @@ timestamp[29]="00:00:00"
 filename[30]="filename30.mp4"
 timestamp[30]="00:00:00"
 
+function add_audio_stream() {
+    local infile=$1
+    local outfile=$2
+    ffmpeg -f lavfi -i anullsrc=channel_layout=stereo:sample_rate=48000 -i ${infile} -c:v copy -c:a aac -shortest -y ${outfile} &> /dev/null
+}
+
 function add_missing_audio_stream() {
     local outfile=$1
     local daystr=$2
+    tempfile="./tmp/tmp_audio.mp4"
     num_streams=$(ffprobe -loglevel error -show_entries stream=codec_type -of csv=p=0 ${outfile} | wc -l)
     if [ ${num_streams} == 1 ]; then
         echo "Adding missing audio stream to day ${day_str}"
-        ffmpeg -f lavfi -i anullsrc=channel_layout=stereo:sample_rate=48000 -i ${outfile} -c:v copy -c:a aac -shortest -y ./tmp/tmp_audio.mp4 &> /dev/null
-        mv ./tmp/tmp_audio.mp4 ${outfile}
+        add_audio_stream ${outfile} ${tempfile}
+        mv ${tempfile} ${outfile}
     fi
 } 
 
@@ -128,12 +135,12 @@ mkdir ./tmp/thumbnails
 echo "Creating title screens (normal and short)"
 ffmpeg -f lavfi -i color=c=black:rate=25:size=${resolution}:duration=${title_duration} -vf "${title_text_settings}:text='${month} ${year}'" ./tmp/tmp_title.mp4 &> /dev/null
 ffmpeg -i ./tmp/tmp_title.mp4 -ss ${thumbnail_title_timeoffset} -s "${thumbnail_resolution}" -frames:v 1 ./tmp/thumbnails/thumbnail_title.png
-ffmpeg -f lavfi -i anullsrc=channel_layout=stereo:sample_rate=48000 -i ./tmp/tmp_title.mp4 -c:v copy -c:a aac -shortest -y ./tmp/title.mp4 &> /dev/null
+add_audio_stream ./tmp/tmp_title.mp4 ./tmp/title.mp4
 echo "file title.mp4" >> ./tmp/concat_list.txt
 
 ffmpeg -f lavfi -i color=c=black:rate=25:size=${shorts_width}x${shorts_height}:duration=${title_duration} -vf "${short_title_text_settings}:y=(h-text_h)*0.43:text='${month}'" ./tmp/tmp_short_title1.mp4 &> /dev/null
 ffmpeg -i ./tmp/tmp_short_title1.mp4 -vf "${short_title_text_settings}:y=(h-text_h)*0.58:text='${year}'" ./tmp/tmp_short_title.mp4 &> /dev/null
-ffmpeg -f lavfi -i anullsrc=channel_layout=stereo:sample_rate=48000 -i ./tmp/tmp_short_title.mp4 -c:v copy -c:a aac -shortest -y ./tmp/short_title.mp4 &> /dev/null
+add_audio_stream ./tmp/tmp_short_title.mp4 ./tmp/short_title.mp4
 echo "file short_title.mp4" >> ./tmp/short_concat_list.txt
 
 for (( i=1; i<=$size; i++ )); do
