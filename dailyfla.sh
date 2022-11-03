@@ -107,6 +107,16 @@ function add_missing_audio_stream() {
         mv ${tempfile} ${outfile}
     fi
 } 
+function create_thumbnail() {
+    local infile=$1
+    local time_offset=$2
+    local resolution=$3
+    local quality=$4
+    local outfile=$5
+
+    ffmpeg -y -i ${infile} -ss ${time_offset} -s "${resolution}" -frames:v 1 ./tmp/temp_thumbnails.png
+    convert ./tmp/temp_thumbnails.png -quality ${quality} ${outfile}
+}
 
 # Check for correct number of input arguments
 if [ $# -ne 4 ]; then
@@ -134,7 +144,7 @@ mkdir ./tmp/thumbnails
 
 echo "Creating title screens (normal and short)"
 ffmpeg -f lavfi -i color=c=black:rate=25:size=${resolution}:duration=${title_duration} -vf "${title_text_settings}:text='${month} ${year}'" ./tmp/tmp_title.mp4 &> /dev/null
-ffmpeg -i ./tmp/tmp_title.mp4 -ss ${thumbnail_title_timeoffset} -s "${thumbnail_resolution}" -frames:v 1 ./tmp/thumbnails/thumbnail_title.png
+create_thumbnail ./tmp/tmp_title.mp4 ${thumbnail_title_timeoffset} ${thumbnail_resolution} ${thumbnail_quality} ./tmp/thumbnails/thumbnail_title.png
 add_audio_stream ./tmp/tmp_title.mp4 ./tmp/title.mp4
 echo "file title.mp4" >> ./tmp/concat_list.txt
 
@@ -152,7 +162,7 @@ for (( i=1; i<=$size; i++ )); do
         ffmpeg -i "${filename[$i]}" -ss ${timestamp[$i]} -t ${duration} ${transcode_settings} ./tmp/tmp_${outfile} >& /dev/null
         # Check if file has audio stream
         add_missing_audio_stream ./tmp/tmp_${outfile} ${day_str}
-        ffmpeg -i ./tmp/tmp_${outfile} -ss ${thumbnail_video_timeoffset} -s "${thumbnail_resolution}" -frames:v 1 ./tmp/thumbnails/thumbnail_${day_str}.png
+        create_thumbnail ./tmp/tmp_${outfile} ${thumbnail_video_timeoffset} ${thumbnail_resolution} ${thumbnail_quality} ./tmp/thumbnails/thumbnail_${day_str}.png
         ffmpeg -i ./tmp/tmp_${outfile} -vf "${daily_text_settings}:text='Day ${day_str}'" ./tmp/${outfile}
         echo "file ${outfile}" >> ./tmp/concat_list.txt
     else
