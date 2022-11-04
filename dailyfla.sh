@@ -23,6 +23,7 @@ short_title_text_settings="drawtext=fontfile=${font_settings}:fontsize=$((short_
 thumbnail_title_timeoffset="1"
 thumbnail_video_timeoffset="0.5"
 thumbnail_resolution="1280x720"
+thumbnail_quality=80
 
 declare -a filenames
 declare -a timestamps
