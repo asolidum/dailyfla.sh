@@ -108,6 +108,17 @@ function add_missing_audio_stream() {
         mv ${tempfile} ${outfile}
     fi
 } 
+
+function save_daily_flash_files() {
+    local outfile=$1
+
+    echo "Creating daily flash file - ${outfile}"
+    ffmpeg -y -f concat -safe 0 -i ./tmp/concat_list.txt -c copy ${outfile} &> /dev/null
+    ffmpeg -y -f concat -safe 0 -i ./tmp/short_concat_list.txt -c copy short_${outfile} &> /dev/null
+    #ffmpeg -y -f concat -safe 0 -i ./tmp/concat_list.txt -c copy ./tmp/tmp_$3 &> /dev/null
+    #ffmpeg -i ./tmp/tmp_$3 -vcodec libx264 -x264-params keyint=5:scenecut=0 -acodec copy $3
+}
+
 function create_thumbnail() {
     local infile=$1
     local time_offset=$2
@@ -176,7 +187,6 @@ for (( i=1; i<=$size; i++ )); do
     fi
 done
 
-echo "Creating daily flash file - ${3}"
-ffmpeg -y -f concat -safe 0 -i ./tmp/concat_list.txt -c copy $3 &> /dev/null
+save_daily_flash_files $3
 # Copy thumbnails to thumbnail destination dir
 mv ./tmp/thumbnails/* $4
