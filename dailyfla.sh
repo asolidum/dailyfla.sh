@@ -18,6 +18,7 @@ title_text_settings="drawtext=fontfile=${font_settings}:fontsize=$((font_size*2)
 daily_text_settings="drawtext=fontfile=${font_settings}:fontsize=${font_size}:box=1:boxcolor=black@0.5:boxborderw=5:x=(w*3/4):y=(h*3/4)"
 short_font_size=100
 short_title_text_settings="drawtext=fontfile=${font_settings}:fontsize=$((short_font_size*2)):x=(w-text_w)/2"
+short_daily_text_settings="drawtext=fontfile=${font_settings}:fontsize=${short_font_size}:box=1:boxcolor=black@0.5:boxborderw=5:x=(w*0.6):y=(h*0.85)"
 
 ## Thumbnail parameters
 thumbnail_title_timeoffset="1"
@@ -177,6 +178,10 @@ for (( i=1; i<=$size; i++ )); do
         create_thumbnail ./tmp/tmp_${outfile} ${thumbnail_video_timeoffset} ${thumbnail_resolution} ${thumbnail_quality} ./tmp/thumbnails/thumbnail_${day_str}.png
         ffmpeg -i ./tmp/tmp_${outfile} -vf "${daily_text_settings}:text='Day ${day_str}'" ./tmp/${outfile}
         echo "file ${outfile}" >> ./tmp/concat_list.txt
+
+        ffmpeg -i ./tmp/tmp_${outfile} -vf "scale=iw*${scale[$i]}:ih*${scale[$i]}:force_original_aspect_ratio=decrease,pad=3414:1920:(ow-iw)/2:(oh-ih)/2,setsar=1,crop=${shorts_width}:${shorts_height}:${offset[i]}:0" ./tmp/tmp_short_${outfile}
+        ffmpeg -i ./tmp/tmp_short_${outfile} -vf "${short_daily_text_settings}:text='Day ${day_str}" ./tmp/short_${outfile}
+        echo "file short_${outfile}" >> ./tmp/short_concat_list.txt
     else
         if [ ! -z "${timestamp[$i]}" ]; then
             echo "ERROR: File ${filename[$i]} for day ${day_str} does not exist"
