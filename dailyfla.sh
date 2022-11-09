@@ -225,6 +225,12 @@ function create_thumbnail() {
     convert ./tmp/temp_thumbnails.png -quality ${quality} ${outfile}
 }
 
+function output_unique_tags() {
+    local array=("$@")
+
+    echo "${array[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' '
+}
+
 # Check for correct number of input arguments
 if [ $# -ne 4 ]; then
     echo "Usage: $0 <month> <year> <output_filename> <thumbnail_dir>"
@@ -287,5 +293,7 @@ for (( i=1; i<=$size; i++ )); do
 done
 
 save_daily_flash_files $3
+output_unique_tags "${tag[@]}"
+
 # Copy thumbnails to thumbnail destination dir
 mv ./tmp/thumbnails/* $4
