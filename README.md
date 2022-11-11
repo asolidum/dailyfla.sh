@@ -7,3 +7,7 @@ If you're interested in checking out how it was made or need something to read t
 [flash.link]: https://alansolidum.com/posts/daily-flash
 [ffmpeg.link]: https://www.ffmpeg.org
 [one_second.link]: https://en.wikipedia.org/wiki/1_Second_Everyday
+
+## Support
+
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/V7V5F5X7E)
