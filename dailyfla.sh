@@ -15,7 +15,8 @@ shorts_height="1920"
 font_size=128
 font_settings="/System/Library/Fonts/Keyboard.ttf:fontcolor=white"
 title_text_settings="drawtext=fontfile=${font_settings}:fontsize=$((font_size*2)):x=(w-text_w)/2:y=(h-text_h)/2"
-daily_text_settings="drawtext=fontfile=${font_settings}:fontsize=${font_size}:box=1:boxcolor=black@0.5:boxborderw=5:x=(w*3/4):y=(h*3/4)"
+daily_text_settings="drawtext=fontfile=${font_settings}:fontsize=${font_size}:box=1:boxcolor=black@0.5:boxborderw=5:x=(w*0.75):y=(h*0.75)"
+
 short_font_size=100
 short_title_text_settings="drawtext=fontfile=${font_settings}:fontsize=$((short_font_size*2)):x=(w-text_w)/2"
 short_daily_text_settings="drawtext=fontfile=${font_settings}:fontsize=${short_font_size}:box=1:boxcolor=black@0.5:boxborderw=5:x=(w*0.6):y=(h*0.85)"
