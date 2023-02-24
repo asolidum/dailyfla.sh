@@ -7,11 +7,11 @@ duration="00:00:01"
 title_duration="3"
 ## Resolution of the final videos (in pixels)
 resolution="3840x2160"
-transcode_settings="-vcodec libx264 -c:a aac -b:a 160k -filter:v fps=25 -s ${resolution}"
 ## Resolution of the shorts final videos (in pixels)
 shorts_width="1080"
 shorts_height="1920"
 
+transcode_settings="-vcodec libx264 -c:a aac -b:a 320k -filter:v fps=25 -s ${resolution}"
 font_size=128
 font_settings="/System/Library/Fonts/Keyboard.ttf:fontcolor=white"
 title_text_settings="drawtext=fontfile=${font_settings}:fontsize=$((font_size*2)):x=(w-text_w)/2:y=(h-text_h)/2"
