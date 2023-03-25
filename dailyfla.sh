@@ -29,9 +29,8 @@ thumbnail_quality=80
 
 declare -a filenames
 declare -a timestamps
-declare -a scale
-declare -a offset
-
+declare -a scales
+declare -a offsets
 declare -a tags
 
 # Start index at one to avoid confusion
